@@ -1,0 +1,599 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Travel Trends</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>   
+        .scrolly {
+            text-decoration: none;
+            display: inline-block;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 0.9em;
+            transition: transform 0.3s ease;
+			outline: none;
+            border: none;
+        }
+        .scrolly:focus {
+            outline: none;
+        }
+        .scrolly:hover {
+            transform: translateY(5px);
+        }
+        .scrolly .icon {
+            display: block;
+            margin-top: 0.5em;
+            font-size: 1.5em;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+		html {
+            scroll-behavior: smooth;
+        }
+        .table-wrapper {
+            scrollbar-width: thin;
+            scrollbar-color: #9fa5b5 #242943;
+        }
+        #results-table thead th {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        #load-more-btn {
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        #load-more-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        #load-more-btn:active {
+            transform: translateY(0);
+        }
+        .category-filter-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+    
+    .filter-icon {
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #9fa5b5;
+        transition: color 0.3s ease;
+    }
+    
+    .filter-icon:hover {
+        color: #3c3f47;
+    }
+    
+    /* Modal styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: #242943;
+        margin: 10% auto;
+        padding: 2em;
+        border: 1px solid #888;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
+    }
+    
+    .modal-header {
+        font-size: 1.5em;
+        font-weight: 600;
+        margin-bottom: 1em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 1em 0;
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #9fa5b5 #242943;
+    }
+    
+    .category-list::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .category-list::-webkit-scrollbar-track {
+        background: #242943;
+    }
+    
+    .category-list::-webkit-scrollbar-thumb {
+        background: #9fa5b5;
+        border-radius: 4px;
+    }
+    
+    .category-list::-webkit-scrollbar-thumb:hover {
+        background: #b0b8c8;
+    }
+    
+    .category-list li {
+        padding: 0.5em 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .category-list input[type="checkbox"] {
+        margin-right: 0.5em;
+        cursor: pointer;
+    }
+    
+    .category-list label {
+        cursor: pointer;
+        flex-grow: 1;
+    }
+    
+    .modal-buttons {
+        display: flex;
+        gap: 1em;
+        margin-top: 1.5em;
+        flex-shrink: 0;
+    }
+    
+    .modal-buttons button {
+        flex: 1;
+        padding: 0.75em;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        text-align: center;
+    }
+    </style>
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header" class="alt">
+						<h1><a href="index.html">Travel Trends</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="/">Home</a></li>
+								<li><a href="/about">About</a></li>
+								<li><a href="/admin">Admin Panel</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Banner -->
+					<section id="banner">
+						<div class="inner">
+							<div class="logo"><span class="icon fa-gem"></span></div>
+							<h2>Where would you like to go?</h2>
+							<p>Discover the most trending places in your dream destination</p>
+							<!-- Scroll indicator -->
+							<a href="#city-selection" class="more scrolly" style="margin-top: 2em;">
+								Explore
+								<br>
+								<span class="icon solid fa-chevron-down"></span>
+							</a>
+						</div>
+					</section>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						
+						<!-- City Selection -->
+                            <section id="city-selection" class="wrapper spotlight style1">
+                                <div class="inner">
+                                    <div class="content" style="width: 100%;">
+                                        <h2 class="major">Choose Your Destination</h2>
+                                        <p>Select a city below to discover the top trending places of interest based on real traveler data.</p>
+                                        <form id="city-form" style="max-width: 600px; margin: 0 auto;">
+                                            <div class="row gtr-uniform">
+                                                <div class="col-8 col-12-xsmall">
+                                                    <select name="city" id="city-select">
+                                                        <option value="">- Select a City -</option>
+														<option value="London">London</option>
+                                                        <option value="Munich">Munich</option>
+                                                        <option value="Barcelona">Barcelona</option>
+                                                        <option value="Florence">Florence</option>
+                                                        <option value="Dublin">Dublin</option>
+                                                        <option value="Sydney">Sydney</option>
+                                                        <option value="Istanbul">Istanbul</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-4 col-12-xsmall">
+                                                    <input type="submit" value="Find!" class="fit" />
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </section>
+
+						<!-- Results Section -->
+                            <section id="results-section" class="wrapper alt style1" style="display: none;">
+                                <div class="inner">
+                                    <h2 class="major">Top Trending Places in <span id="result-city"></span></h2>
+                                    <p id="result-description">Based on social media engagement and mentions from travel influencers.
+                                        <button id="download-csv-btn" class="icon solid fa-download" style="margin-left: 1em; padding: 0.5em 1em; background-color: #4c5c96; color: white; border: none; border-radius: 4px; cursor: pointer; transition: all 0.3s;" title="Download as CSV">
+                                            <span class="label">Download CSV</span>
+                                        </button>
+                                    </p>
+                                    <div class="table-wrapper" style="max-height: 600px; overflow-y: auto; border: 1px">
+                                        <table class="alt" id="results-table" style="margin: 0;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Place Name</th>
+                                                    <th>
+                                                        <div class="category-filter-header">
+                                                            Category
+                                                            <span class="filter-icon fa fa-filter" id="category-filter-btn" title="Filter by category"></span>
+                                                        </div>
+                                                    </th>
+                                                    <th>Activity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="results-body">
+                                                <!-- Results will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- Load More Button -->
+                                    <div style="text-align: center; margin-top: 2em;">
+                                        <button id="load-more-btn" class="button primary" style="display: none;">
+                                            Load More (10)
+                                        </button>
+                                        <p id="results-info" style="margin-top: 1em; color: #999; display: none;">
+                                            Showing <span id="current-count">0</span> of <span id="total-count">0</span> places
+                                        </p>
+                                    </div>
+
+                                    <div id="loading-spinner" style="text-align: center; display: none;">
+                                        <p><i class="fa fa-spinner fa-spin" style="font-size: 2em;"></i></p>
+                                        <p>Loading trending places...</p>
+                                    </div>
+                                    <div id="error-message" style="text-align: center; display: none; color: #ff6b6b;">
+                                        <p>Unable to load results. Please try again.</p>
+                                    </div>
+                                </div>
+                                <div id="category-modal" class="modal">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <span>Filter by Category</span>
+                                            <span class="close-modal">&times;</span>
+                                        </div>
+                                        <ul class="category-list" id="category-list">
+                                            <!-- Categories will be populated dynamically -->
+                                        </ul>
+                                        <div class="modal-buttons">
+                                            <button class="button primary" id="apply-filter">Apply</button>
+                                            <button class="fit" id="cancel-filter">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>	
+
+						<!-- About the Project -->
+							<section id="about" class="wrapper alt spotlight style3">
+								<div class="inner">
+									<a href="#" class="image"><img src="images/code.jpg" alt="" /></a>
+									<div class="content">
+										<h2 class="major">About the project!</h2>
+										<p>You can check for more if you are interested in the development process of this project ^-^</p>
+										<a href="/about" class="special">Learn more</a>
+									</div>
+								</div>
+							</section>
+					</section>		
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script>
+                $(document).ready(function() {
+                    var currentCity = '';
+                    var currentOffset = 0;
+                    var currentCount = 0;
+                    var totalCount = 0;
+                    var hasMore = false;
+                    var selectedCategories = [];
+                    var allPOIs = []; // store all POIs for client-side filtering
+                    var allCurrentResults = [];
+
+					// Smooth scroll for Explore button
+					$('.scrolly').on('click', function(e) {
+						e.preventDefault();
+						var target = $(this).attr('href');
+						$('html, body').animate({
+							scrollTop: $(target).offset().top - 150
+						}, 800, 'swing');
+					});
+                    function loadPOIs(city, offset, append) {
+                        if (!append) {
+                            $('#results-body').empty();
+                            currentOffset = 0;
+                            currentCount = 0;
+                            allCurrentResults = [];
+                        }
+
+                        $('#loading-spinner').show();
+                        $('#load-more-btn').hide();
+                        $('#error-message').hide();
+
+                        var requestData = { 
+                            city: city,
+                            limit: 10,
+                            offset: offset
+                        };
+
+                        $.ajax({
+                            url: '/query',
+                            method: 'GET',
+                            data: requestData,
+                            success: function(data) {
+                                $('#loading-spinner').hide();
+                                $('#results-table').show();
+                                $('#result-city').text(data.city);
+
+                                if (data.top_pois && data.top_pois.length > 0) {
+                                    allCurrentResults = allCurrentResults.concat(data.top_pois);
+
+                                    // Store all POIs for filtering
+                                    if (!append) {
+                                        allPOIs = data.top_pois;
+                                        updateCategoryList(data.top_pois);
+                                    } else {
+                                        allPOIs = allPOIs.concat(data.top_pois);
+                                    }
+
+                                    // Display POIs (filtered if needed)
+                                    displayPOIs(data.top_pois, append);
+
+                                    totalCount = data.total;
+                                    hasMore = data.has_more;
+                                    currentOffset = offset + data.top_pois.length;
+
+                                    $('#current-count').text(currentCount);
+                                    $('#total-count').text(totalCount);
+                                    $('#results-info').show();
+
+                                    if (hasMore && currentCount < 50) {
+                                        var remaining = Math.min(totalCount - currentCount, 10);
+                                        $('#load-more-btn').text('Load More (' + remaining + ')').show();
+                                    } else {
+                                        $('#load-more-btn').hide();
+                                    }
+                                } else {
+                                    if (!append) {
+                                        $('#results-body').append('<tr><td colspan="8" style="text-align: center;">No results found for this city.</td></tr>');
+                                    }
+                                }
+                            },
+                            error: function() {
+                                $('#loading-spinner').hide();
+                                $('#error-message').show();
+                            }
+                        });
+                    }
+
+                    function displayPOIs(pois, append) {
+                        if (!append) {
+                            $('#results-body').empty();
+                            currentCount = 0;
+                        }
+
+                        // Filter POIs by selected categories
+                        var filteredPOIs = pois;
+                        if (selectedCategories.length > 0) {
+                            filteredPOIs = pois.filter(function(poi) {
+                                return selectedCategories.includes(poi.poi_type);
+                            });
+                        }
+
+                        filteredPOIs.forEach(function(poi) {
+                            currentCount++;
+                            console.log('POI Metrics:', {
+                                rank: currentCount,
+                                name: poi.poi_name,
+                                mentions: poi.mentions,
+                                total_likes: poi.total_likes,
+                                avg_likes: poi.avg_likes.toFixed(1),
+                                impact_score: poi.impact.toFixed(2)
+                            });
+                            
+                            var row = '<tr>' +
+                                '<td>' + currentCount + '</td>' +
+                                '<td><strong>' + poi.poi_name + '</strong></td>' +
+                                '<td>' + (poi.poi_type || 'other') + '</td>' +
+                                '<td>' + (poi.poi_activity || 'N/A') + '</td>' +
+                                '</tr>';
+                            $('#results-body').append(row);
+                        });
+
+                        if (filteredPOIs.length === 0) {
+                            $('#results-body').append('<tr><td colspan="4" style="text-align: center;">No results match selected categories.</td></tr>');
+                        }
+                    }
+
+                    function updateCategoryList(pois) {
+                        // Extract unique categories from POIs
+                        var categories = [...new Set(pois.map(poi => poi.poi_type).filter(Boolean))];
+                        var categoryList = $('#category-list');
+                        categoryList.empty();
+
+                        categories.sort().forEach(function(category) {
+                            var isChecked = selectedCategories.includes(category) ? 'checked' : '';
+                            var listItem = '<li>' +
+                                '<input type="checkbox" id="cat-' + category + '" value="' + category + '" ' + isChecked + '>' +
+                                '<label for="cat-' + category + '">' + category + '</label>' +
+                                '</li>';
+                            categoryList.append(listItem);
+                        });
+                    }
+
+                    // CSV Download functionality
+                    $('#download-csv-btn').on('click', function() {
+                        if (allCurrentResults.length === 0) {
+                            alert('No data to download. Please search for a city first.');
+                            return;
+                        }
+
+                        $.ajax({
+                            url: '/download',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                city: currentCity,
+                                pois: allCurrentResults
+                            }),
+                            success: function(data, status, xhr) {
+                                // Create blob from response
+                                var blob = new Blob([data], { type: 'text/csv' });
+                                var link = document.createElement('a');
+                                var url = window.URL.createObjectURL(blob);
+                                link.href = url;
+                                link.download = 'travel_trends_' + currentCity + '.csv';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Download error:', error);
+                                alert('Failed to download CSV. Please try again.');
+                            }
+                        });
+                    });
+
+                    // Modal controls
+                    var modal = $('#category-modal');
+
+                    $('#category-filter-btn').on('click', function() {
+                        modal.show();
+                    });
+
+                    $('.close-modal').on('click', function() {
+                        modal.hide();
+                    });
+
+                    $('#cancel-filter').on('click', function() {
+                        modal.hide();
+                    });
+
+                    $('#apply-filter').on('click', function() {
+                        // Get selected categories
+                        selectedCategories = [];
+                        $('#category-list input[type="checkbox"]:checked').each(function() {
+                            selectedCategories.push($(this).val());
+                        });
+
+                        // Re-display POIs with filters applied
+                        displayPOIs(allPOIs, false);
+                        $('#current-count').text(currentCount);
+
+                        modal.hide();
+                    });
+
+                    // Close modal on outside click
+                    $(window).on('click', function(e) {
+                        if (e.target === modal[0]) {
+                            modal.hide();
+                        }
+                    });
+
+                    $('#city-form').on('submit', function(e) {
+                        e.preventDefault();
+                        
+                        var city = $('#city-select').val();
+                        if (!city) {
+                            alert('Please select a city');
+                            return;
+                        }
+
+                        currentCity = city;
+
+                        // Show results section and loading spinner
+                        $('#results-section').show();
+                        $('#loading-spinner').show();
+                        $('#results-body').empty();
+                        $('#error-message').hide();
+                        $('#results-table').hide();
+
+						// Toggle about section to maintain alternating pattern
+						$('#about').addClass('alt').removeClass('alt');
+
+                        // Scroll to results
+                        $('html, body').animate({
+                            scrollTop: $('#results-section').offset().top - 100
+                        }, 500);
+
+                        // Load first 10 POIs
+                        loadPOIs(city, 0, false);
+                });
+                
+                // Load More button click
+                $('#load-more-btn').on('click', function() {
+                    if (currentCity) {
+                        loadPOIs(currentCity, currentOffset, true);
+                    }
+                });
+            });
+            </script>
+
+	</body>
+</html>

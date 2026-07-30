@@ -1,0 +1,880 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage{styles/report_format}
+\usepackage[style=ieee]{biblatex}
+\addbibresource{references.bib}
+	
+\renewcommand{\labelenumi}{(\roman{enumi})}
+
+
+
+\usepackage{amsmath, amsthm, amssymb}
+ % Some extra symbols
+\usepackage[bottom]{footmisc}
+%\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{adjustbox}
+
+
+
+
+% Directory of figures
+\graphicspath{{figures/}}
+
+% Times New Roman, Requires XeLaTeX or LuaLaTeX
+\RequirePackage{fix-cm}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+
+
+% Numbering at bottom
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}% Clear page header/footer
+\renewcommand{\headrulewidth}{0pt}% No header rule
+\fancyfoot[C]{\thepage}
+
+% Page Margins
+\usepackage[top=3.5cm,bottom=2cm,left=3.5cm,right=2cm]{geometry}
+
+% Prevent hypanated words
+%\hyphenpenalty=100000
+
+% COVER PAGE parameters
+\title{DYNAMIC SOCIAL MEDIA TRAVEL TRENDS RECOMMENDATION SYSTEM}
+\turkcebaslik{DİNAMİK SOSYAL MEDYA SEYAHAT TRENDLERİ ÖNERİ SİSTEMİ}
+\author{Hatice Müberra GÜL}
+\subyear{2025}
+
+% APPROVED BY PAGE parameters
+\supervisor{Assist. Prof. Dr. Onur Demir}
+\examineri{Asst. Prof. Dr. Gizem Terci}
+\examinerii{Lecturer Gülşah Gökhan Gökçek}
+\dateofapproval{02/01/2026}
+
+\begin{document}
+\pagenumbering{roman}
+
+% COVER PAGE
+
+\makecoverpage
+    
+% BLANK PAGE
+\clearpage\mbox{}
+\clearpage    
+\addtocounter{page}{-1}
+    
+% APPROVAL PAGE
+\makeapprovalpage
+
+% ACKNOWLEDGEMENTS PAGE
+\begin{acknowledgements}
+First of all, I would like to express my sincere gratitude to my advisor, Onur Demir, for his guidance and support throughout my project. Without his understanding, I might have considered giving up to procrastination. His calm encouragement meant more to me than he may realize. I would also like to acknowledge Dionysis Gouleras, Mert Özkaya, and Emin Erkan Korkmaz. Their interactive and thought-provoking lectures made the academic experience more engaging and helped make university life genuinely worthwhile. In an era where the necessity of a diploma is questioned, I am deeply grateful for the academic perspective and experience they provided, something that could only be gained within a university setting.
+
+I owe my heartfelt thanks to my family, who have supported me throughout my entire educational journey and made it possible for me to reach where I am today. Thanks to them, I was able to study in a department of my choice, explore different interests freely, and experience a fulfilling university life. I am even writing these lines accompanied by a plate of roasted chestnuts brought to my desk, small gestures that say everything.
+
+I am grateful to my friends who shared this journey with me, saved me from being crushed under assignments and projects, turned challenging days into memorable ones, and made my university life truly enjoyable. Asude, for easing my stress and simply for being there; Eren, for setting an example with your discipline and for being my companion from the very first day of university to the last; Ece, for bringing moments of fun and laughter, along with tangerines and hüptirik's, into otherwise monotonous lectures; and Fevzi, for our dystopian philosophical conversations. Studying with you was truly a privilege.
+
+I am also thankful to Esra and İrem for their steady moral support. Whenever I felt overwhelmed, they were always by my side, both emotionally and materially.
+
+I would also like to acknowledge Hüseyin Yener from my team for his mentorship during the project development process. His enthusiasm for learning and applying new technologies has been a genuine source of inspiration for my engineering career.
+
+Finally, even though he may not fully understand it, I would like to thank my cat Bamsı, who stayed up late nights with me. Sitting in front of my monitor with his massive presence (sometimes making my work harder), he was still one of my greatest sources of motivation and comfort.
+\end{acknowledgements}
+
+% ABSTRACT PAGE
+\begin{abstract}
+Social media has become a key source of travel-related information, reflecting real-time user experiences and emerging destination trends; however, extracting reliable insights from unstructured and rapidly changing content remains challenging due to informal language and data volatility. This study presents a dynamic travel trend recommendation system that treats social media posts as a continuously evolving dataset and transforms them into actionable recommendations using a modular, offline-first architecture. An LLM-based extraction pipeline, supported by a deterministic NER fallback, converts noisy captions into structured points of interest (POIs) stored in a normalized relational database, enabling controlled and reproducible evaluation through schema-based data simulation. A composite ranking mechanism combines audience-normalized engagement metrics with recency-aware weighting to surface current and meaningful trends. User interaction is supported through a lightweight query interface operating exclusively on pre-extracted data, ensuring consistently low-latency responses. Experimental results show that although LLM-based extraction incurs higher offline latency than classical NER methods, it provides superior semantic coverage and reliability while maintaining user-facing response times well below defined performance thresholds. The proposed system is an end-to-end engineering solution that automates discovery, preserves data freshness, and reduces manual effort in travel planning.
+\end{abstract}
+
+% ÖZET PAGE
+\begin{ozet}
+Sosyal medya, gerçek zamanlı kullanıcı deneyimlerini ve ortaya çıkan seyahat eğilimlerini yansıtan önemli bir bilgi kaynağı hâline gelmiştir; ancak biçimsel olmayan metin yapısı ve içeriğin hızlı değişmesi nedeniyle bu verilerden güncel ve anlamlı içgörüler elde etmek zordur. Bu çalışma, sosyal medya paylaşımlarını sürekli güncellenen bir veri kaynağı olarak ele alan ve bunları eyleme geçirilebilir seyahat önerilerine dönüştüren dinamik bir seyahat trendi öneri sistemi sunmaktadır. Sistem, LLM tabanlı bir çıkarım hattını deterministik bir NER yedek yaklaşımıyla destekleyerek sosyal medya metinlerinden yapılandırılmış ilgi noktaları (POI) üretmekte ve bu verileri normalleştirilmiş bir ilişkisel veritabanında saklamaktadır. Gerçek dünya sosyal medya şemalarına dayalı veri simülasyonu sayesinde sistem kontrollü ve tekrarlanabilir biçimde değerlendirilebilmektedir. Öneri sıralaması, takipçi sayısına göre normalize edilmiş etkileşim ölçütlerini tarihe duyarlı ağırlıklandırma ile birleştirerek güncel ve anlamlı trendleri ön plana çıkarmaktadır. Kullanıcı sorguları, yalnızca önceden çıkarılmış ve indekslenmiş veriler üzerinde çalışarak düşük gecikmeli yanıt süreleri sağlamaktadır. Deneysel sonuçlar, LLM tabanlı çıkarımın çevrimdışı aşamada daha yüksek işlem süresine sahip olmasına rağmen, geleneksel NER yöntemlerine kıyasla daha yüksek çıkarım doğruluğu ve anlamsal kapsama sunduğunu göstermektedir. Önerilen sistem, keşfi otomatikleştiren, veri güncelliğini koruyan ve seyahat planlamasında manuel çabayı azaltan uçtan uca bir mühendislik çözümüdür.
+\end{ozet}
+
+% TABLE OF CONTENTS
+\tableofcontents
+
+% LIST OF FIGURES
+\listoffigures
+
+%LIST OF TABLES
+\listoftables
+
+% ABBREVIATIONS
+\begin{symbols-abbreviations}
+\sym{$ExtractionRT$}{Entity extraction response time}
+\sym{$QueryRT$}{User query response time}
+\sym{$p50$}{Median latency (50th percentile)}
+\sym{$p95$}{Tail latency (95th percentile)}
+\sym{$POI$}{Point of Interest}
+\sym{$LLM$}{Large Language Model}
+\sym{$NER$}{Named Entity Recognition}
+\sym{$UGC$}{User-Generated Content}
+\sym{$DMOs$}{Destination Marketing Organizations}
+\sym{$N$}{Total number of processed posts}
+\sym{$t_{extract}$}{Extraction time per post}
+\sym{$t_{query}$}{Response time per user query}
+\sym{$API$}{Application Programming Interface}
+\sym{$JSON$}{JavaScript Object Notation}
+\sym{$M$}{The total number of times a given POI is mentioned across the analyzed
+posts}
+\end{symbols-abbreviations}
+
+% CONTENT
+\chapter{INTRODUCTION}
+\label{introduction}
+\pagenumbering{arabic}
+In the modern era of travel, the mechanisms of discovery have fundamentally shifted from static authoritative sources (such as guidebooks and travel agencies) to dynamic, peer-to-peer digital ecosystems. Today, travelers increasingly rely on social media platforms not only for inspiration, but as primary search engines for discovering "local" and trending experiences. This digital transformation has led to an explosion of user-generated content (UGC), where millions of potential data points ranging from viral cafes to hidden scenic spots taking over Instagram are shared daily. However, this creates a profound "data paradox": while there is more travel information available than ever before, it is largely unstructured, chaotic, and transient. Thus, it is increasingly difficult for end-users to utilize it efficiently for decision-making.
+
+Current travel planning workflows are characterized by redundancy and inefficiency. Travelers often navigate a fragmented landscape of blogs, navigation sites, and guide websites, most of which rely on static databases that are updated annually or infrequently. These traditional sources fail to capture the real-time nature of modern trends, often recommending established landmarks while missing fleeting but highly desirable opportunities such as limited-time exhibitions or newly opened venues. Furthermore, General Purpose Large Language Models (LLMs), while powerful, are constrained by training data cutoffs and lack direct access to live social media feeds, rendering them unable to know what is trending today. Consequently, users are forced into a manual loop of scrolling, screenshotting, saving, and cross-referencing posts, leading to information overload and a disconnected planning experience.
+
+To effectively address these challenges, this project introduces a specialized real-time travel trend recommendation system that treats social networks not as a chaotic feed, but as a continuously evolving database of places. The proposed solution investigates the potential of treating unstructured social media captions as a raw data source to generate immediate, actionable travel intelligence. By implementing a sophisticated data pipeline, the system automates the extraction of specific Points of Interest (POIs) and activities using advanced semantic analysis driven by Large Language Models (LLMs). Unlike systems that rely on static datasets or manual curation, this system employs a dynamic scoring mechanism to rank places based on near real-time engagement and recency, thereby surfacing "trending" spots that traditional engines miss. The objective is to provide travelers with a tool that bypasses the manual effort of social media research, offering immediate access to current, location-specific information about destinations.
+
+Consequently, the report is structured as follows:
+\begin{itemize}
+\item \textbf{Section 2: Background} reviews existing literature on the digital transformation of tourism marketing, specifically the shift towards "Instagrammability" and user-generated content. It analyzes current state-of-the-art approaches, including event-aware analytics and personalized planning agents, highlighting the specific gap in real-time, unstructured POI extraction that this project addresses.
+\item \textbf{Section 3: Methodologies} offers a comprehensive overview of the technical foundations, detailing the specific Tools and LLM/NLP Models employed to parse unstructured text. It outlines the strategy for Near Real-Time Data Extraction and defines the Test Criteria used to validate the accuracy of the semantic extraction pipeline.
+\item \textbf{Section 4: Analysis \& Design} clearly defines the functional and non-functional requirements established for the system. It provides a detailed framework for expected system behaviors and includes system design diagrams to visually illustrate the critical data flows—from raw social media ingestion to the final user recommendation.
+\item \textbf{Section 5: Implementation} explains the practical realization of the system components, focusing on the System Architecture. It details the development of the data pipeline, the integration of LLMs for entity extraction, and the scoring logic that powers the trend identification engine.
+\item \textbf{Section 6: Test \& Results} presents the Testing and Results of the system, verifying the effectiveness of the POI extraction and the relevance of the generated recommendations against real-world scenarios.
+\item \textbf{Section 7: Conclusion \& Future Work} synthesizes the main achievements and contributions of the project, highlighting the effectiveness of the proposed dynamic recommendation, and suggests clear directions for future work.
+\end{itemize}
+
+\chapter{BACKGROUND}
+
+This section reviews the shift toward user-driven digital tourism and the growing importance of social media in shaping travel trends. It highlights limitations of existing systems in extracting real-time insights from unstructured data, motivating the proposed LLM-based approach.
+
+\section{The Digital Transformation of Tourism Marketing}
+The paradigm of tourism marketing has undergone a radical transformation in the last decade, shifting from a static model to a dynamic, user-driven ecosystem, mainly driven by the widespread use of social media, which has changed how people discover, experience, and promote travel destinations. Christou et al. \cite{christou2025} argue that the “Instagrammability” of a destination has emerged as a critical determinant of its competitiveness, often superseding traditional metrics such as historical significance or service quality. In their comprehensive review of the “metaverse era” of tourism, they articulate that social media is no longer merely a dissemination channel but a constitutive element of the travel experience itself. The visual-centric nature of platforms like Instagram and TikTok constructs a “hyper-reality” where the digital representation of a location becomes as valuable as the physical experience. This “democratization of influence” means that destination image is no longer controlled by Destination Marketing Organizations (DMOs) but is co-created by millions of users whose posts can trigger viral trends instantaneously. The authors highlight a critical shift towards “AI-immersive journeys,” where the convergence of user-generated content (UGC) and algorithmic curation dictates tourist flows, while also cautioning that this rapid visualization can lead to issues such as overtourism and the commodification of culture, necessitating more intelligent, data-driven tools to manage tourist attention effectively.
+
+Empirical evidence for this digital transformation is provided by Karaca and Yemez \cite{karaca2022}, who analyzed the role of social media in tourists’ actual behavior using Structural Equation Modeling (SEM) on data from 365 participants. Their results showed a significant positive effect of social media use on both behavioral intention (≈42\%) and tourist behavior (≈45\%). The study further distinguished between “Tourism Promotion” and “Information Seeking,” finding that active information seeking increased intention (36\%) and actual behavior (37\%), indicating that modern tourists actively seek local and authentic experiences rather than passively consuming advertisements. These findings confirm social media as a primary driver of contemporary tourism demand, while also highlighting a critical limitation in the literature: the lack of technical infrastructure to operationalize this demand in real time. Supporting this shift toward authenticity, Gon \cite{gon2020} showed that hashtags such as \#local and \#localexperience are primarily used by users to discover genuine cultural connections, reinforcing the co-creation of tourism value.
+
+However, while these studies confirm that users use social media to find places, they do not propose automated systems to help users filter this overwhelming stream of data efficiently. The current workflow remains manual and redundant. Users must scroll, save, and manually organize posts, presenting a clear opportunity for an automated, LLM-driven pipeline to extract these trends dynamically.
+
+\section{LLM-Driven Analytics and Event Awareness}
+As the volume of User-Generated Content (UGC) scales beyond human processing capabilities, researchers have increasingly turned to Large Language Models (LLMs) to automate the extraction of semantic meaning and predictive signals from social data. Wang et al. \cite{wang2025event} proposed a pioneering "event-aware" analytical framework designed to predict cross-city visitor flows by mining event features from online information. Their methodology addresses the challenge of irregular demand surges caused by diverse public events (e.g., concerts, fireworks), which traditional time-series models often fail to capture. They developed a comprehensive pipeline that utilizes LLMs to parse unstructured event descriptions and quantify "social media popularity" through specific metrics: "Promotional Popularity" (pre-event hype) and "Word-of-Mouth Popularity" (post-event reviews). By integrating these LLM-derived features into a Gradient Boosted Decision Trees (GBDT) rolling prediction model, they achieved an R-squared of over 85\% in predicting mainland Chinese visitor flows to Hong Kong.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{1.png}
+    \caption{Overview of proposed LLM-enhanced framework of event data collection and feature mining \cite{wang2025event}}
+    \label{fig:2.1}
+    \vskip\baselineskip % Leave a vertical skip below the figure
+\end{figure}
+
+The innovative aspect of their work lies in the distinct prompts used to extract structured "event time," "event type," and "sentiment" from chaotic social streams, proving that LLMs can effectively filter noise from high-velocity data. However, the scope of Wang et al.'s work is macroscopic—aimed at municipal crowd management and transport logistics—rather than providing granular, actionable recommendations for individual travelers seeking specific points of interest.
+
+Parallel to flow prediction, Lan et al. \cite{lan2025} examined the psychological aspects of UGC through a "semiotic reconstruction" paradigm. Their study introduced a dual-method LLM framework that combines unsupervised expectation extraction with survey-informed supervised fine-tuning. By analyzing thousands of posts from platforms like Weibo and Xiaohongshu, they utilized LLMs to decompose tourism-related discourse into latent expectation categories, such as “Leisure/Social” and “Natural/Emotional.”. Their findings suggest that "Leisure/Social" expectations (the desire for photogenic, socially valid experiences) are increasingly driving engagement, surpassing traditional "Natural" motivations. This "computational tourism phenomenology" represents a significant leap in understanding why tourists visit certain locations. Lan et al. demonstrate that LLMs can decode the "tourist gaze 2.0," verifying that the semantic content of a caption holds the key to user intent. Despite its theoretical depth, their framework focuses on extracting abstract psychological constructs for market analysis rather than specific, named entites (POIs) for immediate visitation. It helps DMOs understand "destination image" but does not help a user answer the question, "Where is a cool cafe nearby right now?" This gap highlights the need for a system that applies the semantic power of LLMs (as demonstrated by Lan et al.) using the pipeline rigor of Wang et al. \cite{wang2025event}, but focused specifically on the extraction of activities and places for an end-user recommendation engine.
+
+\section{Personalized Planning and Geo-Temporal Context}
+The final frontier in modern recommendation systems is the integration of reasoning and context to create personalized travel plans. Kim et al. \cite{kim2025} advanced this field by introducing "geo-temporal embeddings" generated by LLMs. recognizing that simple timestamps (e.g., "2023-12-25") fail to capture the semantic richness of a date (e.g., "Christmas Day," "Winter Season"), they utilized LLMs to transform general inputs (timestamp and location) into rich context vectors. These embeddings allow sequential recommendation models (like SASRec) to align user preferences not just with what they liked, but when and where they liked it. For instance, a user’s preference for indoor activities in winter is better captured through these semantic embeddings than through raw numerical dates. Their experiments on datasets like MovieLens and LastFM demonstrated that this "context-enriched" approach reduces the sparsity of traditional context-aware models. However, a critical limitation is that their system relies on metadata injection into existing IDs, rather than discovering new items from live data. It optimizes rankings within a closed set of items but cannot inform a user of a newly opened venue that has appeared on social media only days ago.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{2.png}
+    \caption{Overview of proposed Geo-Temporal Context Extraction Module \cite{kim2025}}
+    \label{fig:2.2}
+    \vskip\baselineskip
+\end{figure}
+
+Addressing the complexity of itinerary generation, Wang et al. \cite{wang2025remap} proposed the ReMAP (Reasoning-enhanced Multi-turn Agent with Personalized Adaptation) framework. This system represents a move towards agentic travel planning, employing "Reasoning-and-Acting" (ReAct) and "Chain-of-Thought" (CoT) prompting strategies to handle constraints (like budget or time). Tested on a "Tibet tourism" scenario, ReMAP outperformed standard LLMs in feasibility and personalization accuracy (-10.51\% gain). The framework illustrates the potential of LLMs to act not just as text processors, but as reasoning agents. Yet, similar to Kim et al. \cite{kim2025}, ReMAP’s efficacy is bounded by its existing, static knowledge base. ReMAP might plan a great trip based on a database of known museums, but it won't know about the pop-up exhibition that just went viral a couple days ago. Kim et al. improve the ranking of known items but don't discover new ones from live feeds. They reason perfectly over known information, but they lack an understanding of the dynamic, real-time trends that characterize modern travel.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{3.png}
+    \caption{Overview of proposed ReMAP’s structure diagram \cite{wang2025remap}}
+    \label{fig:2.3}
+    \vskip\baselineskip
+\end{figure}
+
+The reviewed literature demonstrates a clear shift toward data-driven and learning-based approaches: tourism is increasingly digital and visually driven \cite{christou2025} \cite{karaca2022}, and LLMs provide the necessary capability to parse \cite{wang2025event} and reason \cite{wang2025remap} \cite{lan2025} about this data. However, a specific functional gap remains. Current state-of-the-art systems either focus on macro-level crowd flow prediction \cite{wang2025event}, abstract psychological analysis \cite{lan2025}, or closed-loop planning within static databases \cite{kim2025} \cite{wang2025remap}. There is a lack of solutions that treat social media not just as a signal for analytics or destination branding, but as a live, dynamic database of places. This project aims to fill this gap by building a real-time pipeline that extracts specific Points of Interest (POIs) directly from the unstructured captions of Instagram posts. By applying LLM-based entity extraction and scoring these POIs based on dynamic engagement metrics (as motivated by \cite{karaca2022}), this system provides users with immediate, trend-aware recommendations, effectively automating the "social media research" phase of travel planning that remains manual for most users.
+
+\chapter{METHODOLOGY}
+
+This section describes the methodologies that are related to the proposed system. The
+subsections include Tools, AI Models and Test Criteria. 
+
+\section{Software \& Tools}
+
+This subsection outlines the essential software ecosystem, frameworks, and development environments that facilitate the design, implementation, and evaluation of the project. The selection of these tools was driven by the need for a seamless integration between a responsive user interface, a robust backend for data processing, and reliable storage for high-velocity social media data.
+
+\subsection{Frontend Technologies}
+
+The user interface serves as the critical bridge between the end-user and the recommendation engine, necessitating a design that prioritizes accessibility, responsiveness, and minimal latency. Given the project's architectural emphasis on backend-intensive processes the frontend implementation strategy prioritized a streamlined, lightweight approach. Consequently, the interface is constructed using the foundational web standards: HTML5, CSS3, and JavaScript, rather than heavier frameworks.
+This strategic decision reduces client-side complexity and dependency overhead, ensuring that development resources are allocated primarily to the core data processing pipeline. HTML5 provides the semantic structure necessary for search engine visibility and accessibility compliance. CSS3 facilitates responsive design through flexible grid systems, ensuring consistent rendering across mobile and desktop devices without the performance cost of JavaScript-based styling libraries. Finally, JavaScript is employed selectively for asynchronous server communication, balancing interactivity with rapid page load times essential for a search-centric utility.
+
+\subsection{Backend Technologies}
+
+The server-side architecture is powered by Flask, a lightweight and flexible Python microframework. Flask was chosen for its distinct lack of boilerplate code, allowing for the rapid development of custom RESTful API endpoints that the project requires. It acts as the orchestrator of the system, receiving user queries, dispatching extraction tasks, and serving structured JSON data back to the frontend.
+Working in tandem with Flask is SQLAlchemy, a powerful Object-Relational Mapper (ORM). SQLAlchemy bridges the gap between the object-oriented Python code and the relational database, allowing for type-safe database interactions. It abstracts complex SQL queries into readable Python objects, facilitating the implementation of the project's custom "impact scoring" algorithms and ensuring efficient data retrieval. This combination ensures the backend remains scalable and maintainable while handling complex data relationships.
+
+\subsection{Database Management}
+
+Reliable data storage is critical for a system that aims to treat social media as an evolving database. PostgreSQL is utilized as the primary Relational Database Management System (RDBMS). It is an advanced, open-source database known for its robustness, ACID compliance, and ability to handle complex queries efficiently. It serves as the central repository for all project data, organizing disparate information (from user accounts and posts to extracted locations) into a structured schema.
+To manage this database effectively, pgAdmin 4 is employed as the graphical administration interface. It provides a visual environment for designing database schemas, inspecting records, and optimizing query performance. This tool is essential for monitoring the health of the data pipeline and ensuring that the large volumes of extracted social media content are indexed and retrieved with minimal latency.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pgadmin.png}
+    \caption{pgAdmin 4 Database Management Interface}
+\end{figure}
+
+\subsection{Development Environment}
+The development lifecycle is supported by a suite of industry-standard tools designed to enhance productivity and code quality. Visual Studio Code (VS Code) serves as the Integrated Development Environment (IDE), providing a versatile workspace with support for Python debugging, intelligent code completion, and integrated terminal access.
+Furthermore, the project employs Python virtual environments (`venv`) to isolate dependencies, ensuring that the specific libraries required for LLM integration and data processing remain consistent across different development machines.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/vscode.png}
+    \caption{VSCode Environment}
+    \vskip\baselineskip
+\end{figure}
+
+\section{LLM and NLP-Based Entity Extraction}
+
+The core challenge of this project lies in transforming unstructured, informal social media text into structured geospatial data. This section details the evolution of the extraction pipeline, beginning with initial attempts using traditional Natural Language Processing (NLP) techniques and culminating in the adoption of a Large Language Model (LLM) approach. This transition was driven by the need for greater semantic understanding and resilience to the noise inherent in user-generated content.
+
+\subsection{Initial NLP-Based Approach and Its Limitations}
+
+The initial design of the system explored the use of classical Natural Language Processing (NLP) techniques for extracting place-related entities from social media captions. In particular, rule-based and statistical Named Entity Recognition (NER) approaches, such as those provided by libraries like spaCy \cite{spacy}, were considered due to their low inference latency and ease of integration.
+
+However, early experimentation revealed several limitations that significantly constrained the applicability of traditional NLP methods for the project task. Rule-based and pattern-driven NER systems are highly domain-dependent and require carefully engineered rules to achieve acceptable performance. In the context of travel-related user-generated content, captions frequently contain informal language, abbreviations, and emojis. As a result, such systems struggled to reliably capture multi-word place names, contextual references, and were highly sensitive to linguistic variation in user-generated content.
+
+Furthermore, conventional NLP pipelines typically focus on entity detection alone, without providing higher-level semantic attributes such as entity type or description. For the purposes of this project, merely identifying a named location was insufficient. Additional information (type of place and associated activities) was required to support downstream trend analysis and recommendation logic. These constraints indicated that a purely NLP-based approach would require extensive manual rule engineering while still offering limited robustness in open-domain, user-generated text.
+
+\subsection{Transition to Large Language Models}
+
+To address these limitations, the system design transitioned toward the use of Large Language Models (LLMs) for entity extraction. Unlike classical NER systems, LLMs perform contextual reasoning over entire text segments, enabling them to infer implicit meanings, resolve compound expressions, and associate entities with descriptive attributes.
+
+A key advantage of LLM-based extraction lies in its flexibility. Entity detection, type classification, activity description, and canonicalization can be expressed jointly within a structured prompt, eliminating the need for multiple post-processing stages. This is particularly relevant in social media contexts, where entity mentions often appear in varied surface forms (e.g., abbreviations, possessive forms, or informal variants) that benefit from semantic normalization rather than strict string matching.
+
+While LLMs generally incur higher inference latency compared to traditional NLP pipelines, their improved extraction accuracy and reduced dependence on handcrafted rules justified their adoption for this project. Consequently, the system architecture was adapted to minimize perceived latency for end users, ensuring that the use of LLMs did not negatively impact usability.
+
+Among available LLM options, the Qwen family of models was evaluated due to their strong performance in multilingual and instruction-following tasks. Larger variants within the family offer enhanced reasoning capabilities but exhibit substantially higher inference times, making them less suitable for scenarios involving frequent or batch-based processing.
+
+Qwen-Turbo \cite{qwen} was selected as a balanced alternative that offers sufficient contextual understanding for entity extraction tasks while maintaining comparatively low latency. Its instruction-tuned design enables reliable adherence to structured prompts, making it well suited for tasks that require deterministic JSON outputs and strict formatting constraints. Compared to larger general-purpose models, Qwen-Turbo provides a favorable trade-off between semantic accuracy and computational efficiency, which is particularly important when processing large volumes of short-form text such as social media captions.
+The selection of this model reflects a system-level optimization rather than a model-centric preference: the goal is not maximal linguistic sophistication, but consistent, scalable extraction aligned with the requirements of a real-time or near–real-time application.
+
+In addition to performance considerations, the adoption of LLMs simplifies the overall system design by reducing pipeline complexity. Traditional NER-based approaches typically require separate modules for tokenization, tagging, rule-based filtering, and entity normalization, each of which introduces potential points of failure. By contrast, an LLM-centric approach consolidates these steps into a single inference stage driven by a well-defined prompt structure. This consolidation improves maintainability and lowers the cost of future system extensions, such as adding new entity types or adapting to different content domains. Furthermore, prompt-based extraction enables rapid experimentation without retraining models or redesigning feature sets, which is particularly valuable in exploratory research settings. The ability to encode domain knowledge directly within prompts allows the system to remain adaptable to evolving analytical requirements. From an evaluation perspective, this approach also supports clearer attribution of extraction errors to model behavior rather than pipeline interactions. Although reliance on LLMs introduces dependencies on external model providers, these dependencies are more stable than platform-level data access mechanisms. Overall, the transition to LLM-based extraction represents a pragmatic trade-off between architectural simplicity, adaptability, and extraction quality.
+
+\section{Near Real Time Data Extraction}
+
+Retrieving data from Instagram in real time presents a well-documented challenge for both developers and researchers. As a closed platform, Instagram frequently updates its internal systems (often at intervals of two to four weeks) with the explicit purpose of preventing automated data extraction \cite{scrapfly}. These changes introduce significant maintenance overhead, as scraping mechanisms require continuous adaptation to remain functional. In practice, this can result in disproportionate effort being spent on maintaining data access rather than developing and evaluating higher-level analytical systems. Observations indicate that even widely used open-source tools, such as Instagram-Profilecrawl \cite{instapy}, which are designed to retrieve post-level information, may become unstable or cease functioning entirely following such updates.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{insta_post.png}
+    \caption{Structure of an Instagram post by a travel influencer}
+    \label{insta_post}
+    \vskip\baselineskip
+\end{figure}
+
+Although commercial data access and scraping services exist that offer more stable pipelines to social media content, their use was not required for the objectives of this project. The focus of the study lies in validating the analytical pipeline—specifically, the extraction of travel-related trends and place information from textual content—rather than in evaluating or benchmarking data acquisition solutions. As such, the choice to avoid external commercial services does not limit the applicability of the proposed system in real-world deployments, where such services could be integrated if continuous data access were required.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{insta_loc.png}
+    \caption{Structure of a restaurants location on Instagram}
+    \label{profilecrawldata}
+\end{figure}
+
+The primary objective of this project is to evaluate the feasibility of extracting travel-related trends and place information from caption text, rather than to develop or maintain a scraper capable of circumventing platform-level restrictions. To avoid the risks associated with unstable data access during system evaluation, a more robust approach was adopted: Data Simulation based on Real Schemas.
+
+To support this approach, the data structures produced by existing scraping tools were first analyzed to identify the information typically available from a public Instagram post. This analysis revealed a consistent set of metadata fields \ref{insta_post}, including a unique post identifier, caption text, publication date, location tags, and engagement metrics such as like and comment counts. Based on these findings, a standardized database schema was designed to accurately reflect the structure and semantics of real-world social media data. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{profilecrawl.png}
+    \caption{Structure of the scraped metadata using Instagram-Profilecrawl}
+\end{figure}
+
+The investigation therefore focused on determining an optimal data representation for trend and place-based analysis. By examining the output formats of Profilecrawl \ref{profilecrawldata} and similar solutions, essential metadata fields were isolated and formalized within a unified schema capable of capturing the complex and narrative-rich nature of travel-related social media content.
+
+Specifically, the schemas prioritize the capture of visual metadata and geo-tagged coordinates, which are essential for distinguishing between purely aspirational content (e.g., 'throwback' posts) and actionable, real-time travel opportunities. By formalizing these fields, the system ensures that the downstream ranking algorithms have a reliable signal-to-noise ratio, regardless of the specific scraping tool employed.
+
+To populate the system for validation purposes, synthetic data was generated using Large Language Models (LLMs) in accordance with the defined schema. The generated data was structurally equivalent to real-world inputs and included city-specific captions, hashtags, and realistic engagement patterns. This methodology emphasizes architectural flexibility: by defining system inputs through a generalized data structure rather than a platform-specific API response, the resulting design remains platform-agnostic. As a result, data from other social media platforms with comparable structures, such as TikTok or X (Twitter), can be integrated into the system with minimal modification.
+
+\section{Test Criteria}
+
+In this study, the performance of the data extraction system and overall recommendation platform is evaluated using several key metrics to ensure a comprehensive assessment of the system's effectiveness in solving the travel planning problem. The test criteria are as follows:
+
+\subsection{Model Evaluation Metrics - Error Rate in Data Extraction}
+
+The extraction accuracy of two distinct approaches: Qwen (LLM-based) and Spacy (rule/NLP-based) are evaluated to determine their effectiveness in identifying and extracting point-of-interest (POI) information from synthetic social media content. The evaluation focuses on POI names and types, which are critical structured fields for travel recommendation systems.
+The evaluation targets two primary fields: POI names (e.g, "London Museum of Water \& Steam", "Pavilion Café") and POI types (e.g., "museum", "park", "cafe"). A synthetic labeled corpus is constructed to emulate realistic social media posts, including noise such as emojis, abbreviations, and mixed languages. The dataset is split into 70\% development and 30\% holdout test sets, with no overlap in source content. Ground truth labels are manually annotated and normalized through lowercasing, whitespace trimming, and canonicalization.
+
+\textbf{Precision} measures the proportion of correctly extracted POI names among all POI names predicted by the model, and is calculated as shown in Equation 1. Precision is important when the cost of false positives is high. In the context of travel recommendations, false positives would lead to irrelevant or non-existent locations being suggested to users, degrading the overall user experience.
+\begin{equation}
+Precision = \frac{TP}{TP+FP}
+\end{equation}
+Where:
+\begin{itemize}
+    \item TP (True Positives): Number of POIs correctly extracted
+    \item FP (False Positives): Number of POIs incorrectly extracted
+\end{itemize}
+
+\textbf{Recall}, which is also referred to as Sensitivity or True Positive Rate, quantifies the fraction of actual POI names that are correctly identified by the model. Recall is calculated as shown in Equation 2. Recall is particularly important when the cost of false negatives is high. In travel planning, missing a relevant destination (false negative) could result in users overlooking valuable recommendations, thus reducing the system's utility.
+\begin{equation}
+Recall = \frac{TP}{TP+FN}
+\end{equation}
+Where:
+\begin{itemize}
+    \item TP (True Positives): Number of POIs correctly extracted
+    \item FN (False Negatives): Number of POIs missed by the model
+\end{itemize}
+
+The \textbf{F1-Score} is the harmonic mean of Precision and Recall. It provides a balance between these two metrics and is especially useful when both false positives and false negatives carry significant consequences. The F1-Score is calculated as shown in Equation 3. The F1-Score serves as a comprehensive measure of extraction quality, penalizing models that exhibit strong bias toward either over-extraction or under-extraction.
+\begin{equation}
+F1\text{-}Score = 2 \times \frac{Precision \times Recall}{Precision + Recall}
+\end{equation}
+
+\textbf{Exact Match (EM)} for POI names represents the proportion of extracted names that exactly match the ground truth after normalization. It is calculated as shown below. While Precision and Recall operate at the token or span level, Exact Match provides a stricter criterion that captures whether the complete POI name has been extracted correctly.
+\begin{equation}
+EM = \frac{\text{Number of Exact Matches}}{\text{Total Number of Instances}}
+\end{equation}
+
+POI type classification is evaluated separately, as it requires semantic understanding beyond simple pattern matching. The NLP-based Spacy approach is inherently limited in inferring POI types due to its reliance on predefined rules and patterns, whereas the LLM-based Qwen model can leverage contextual understanding. For POI type evaluation, \textbf{accuracy} is used as the primary metric, representing the proportion of correctly classified POI types out of all instances.
+\begin{equation}
+Accuracy = \frac{\text{Number of Correct Predictions}}{\text{Total Number of Predictions}}
+\end{equation}
+
+Additionally, a confusion matrix is generated to assess the distribution of correct and incorrect type classifications. The confusion matrix visually illustrates classification errors and reveals patterns in model behavior, such as systematic misclassification between similar types (e.g., "café" vs. "restaurant"). The confusion matrix consists of four components: True Positives (TP), True Negatives (TN), False Positives (FP), and False Negatives (FN).
+
+The \textbf{Extraction Error Rate (EER)} quantifies the overall proportion of incorrect extractions across all targeted fields. It serves as a high-level indicator of model reliability and is calculated as shown below.
+\begin{equation}
+EER = \frac{\text{Number of Incorrect Extractions}}{\text{Total Number of Extraction Targets}}
+\end{equation}
+
+\textbf{Evaluation Procedure:} Both Qwen and Spacy are evaluated on the identical holdout test set under fixed configurations. For Qwen, the model version, prompt template, temperature, and top-p sampling parameters are fixed and logged. For Spacy, the rule sets, parsers, and NLP model versions are frozen. Identical post-processing and normalization procedures are applied to both approaches. Metrics are computed on a per-field basis and aggregated to produce overall performance measures. Confidence intervals at the 95\% level are estimated via bootstrap resampling with 1,000 iterations to assess the stability of the results.
+
+\textbf{Acceptance Criteria:}
+
+The acceptance thresholds are defined as follows: aggregate F1-Score for POI name extraction must be $\ge 0.75$, Exact Match must be $\ge 0.70$, and Extraction Error Rate must be $\le 25\%$. For POI type classification, accuracy must be $\ge 0.75$. The approach that meets these thresholds with the lowest EER is selected for deployment. If performance varies significantly by field, a hybrid strategy combining both approaches is documented and justified.
+
+\subsection{System Performance - Query Response Time and Extraction Latency}
+System performance is evaluated by measuring the latency of data extraction and database query operations. The objective is to quantify the time required for (a) data extraction by Qwen and spaCy during the pipeline stage, and (b) user query response time when retrieving recommendations from the database. This evaluation justifies the architectural decision to perform heavy data extraction offline in a pre-built collection and extraction pipeline, thereby minimizing user-facing latency.
+Latency is measured at the median (p50) and 95th percentile (p95) to capture both typical and worst-case performance. The p50 reflects the experience of most users under normal conditions, while p95 reveals tail latency that a small fraction of users may encounter. Both Extraction Response Time (ExtractionRT) and Query Response Time (QueryRT) are measured to compare offline pipeline costs against user-facing interaction costs.
+
+\textbf{Measurement Procedure:} Extraction latency for both Qwen and spaCy is measured on identical batches of synthetic content. Each approach processes the same 60-post test set, and timing measurements are collected using Python's `time.perf\_counter()` for high-resolution timing. To account for variance, measurements are repeated across three independent runs, and the median values are reported.
+
+Query latency is measured after the extraction pipeline has populated the database. A set of representative user queries is executed against the database, triggering retrieval and lightweight ranking operations. Response times are logged for each query. End-to-end user path timing is also recorded, which includes query submission, database retrieval, ranking, and result presentation.
+
+\textbf{Acceptance Criteria:}
+
+The system must achieve a p95 QueryRT of $\le 500$ milliseconds to ensure a responsive user experience. The pipeline architecture is justified if QueryRT is significantly lower than ExtractionRT, demonstrating that extraction has been successfully removed from the critical user interaction path.
+
+\subsection{Data Freshness - Top-20 Recency Evaluation}
+Data freshness is a critical factor in travel recommendations, as users prefer recent and up-to-date content that reflects current trends and conditions. Due to platform constraints that prevented live Instagram data extraction, this study relies on synthetic data with simulated timestamps. To approximate the value delivered to users, the freshness of the top-20 recommended items is evaluated.
+The age of each recommended item is calculated as the difference in days between the current date and the item's timestamp.
+\begin{equation}
+age = current\_date - timestamp
+\end{equation}
+
+Mean Age\_20 is the average age in days of the top-20 recommended items. Lower mean age indicates that the recommendation system prioritizes recent content.
+\begin{equation}
+MeanAge\_20 = \frac{1}{20} \sum_{i=1}^{20} age_i
+\end{equation}
+
+\textbf{Evaluation Procedure:} The synthetic dataset includes timestamps distributed across a realistic range (recent, moderately old, and older posts). The recommendation and ranking algorithms are executed, and the top-20 results are analyzed for freshness using the mean age metric.
+
+\textbf{Acceptance Criteria:}
+
+The system should demonstrate a preference for recent content, with Mean Age\_20 $\le 60$ days, indicating that recommendations are reasonably current for travel planning purposes.
+
+\subsection{Relevance of Recommendations - User Feedback}
+The relevance of recommendations is assessed through user feedback collected via a web-based survey. Participants are asked to evaluate recommendations in the context of a travel planning scenario, providing ratings and qualitative comments on the usefulness and relevance of the suggestions.
+The survey employs Likert-scale ratings from 1 to 5, where 1 represents "not relevant" and 5 represents "highly relevant." The Satisfaction Score is the mean relevance rating across all users and serves as an overall measure of perceived recommendation quality. Precision\_k (e.g., k = 20) is the fraction of the top-k recommendations that users rate as useful (rating $\ge 3.5$), providing insight into the proportion of actionable suggestions.
+Participants are recruited from the cohort that completed the earlier "Social Media Usage \& Travel Planning" survey, ensuring familiarity with the problem domain. Recommendation sets are randomized to mitigate order bias and ensure that results are not influenced by presentation sequence. A target of at least 20 complete responses is set to achieve statistical confidence in the results.
+
+\textbf{Acceptance Criteria:}
+
+The system must achieve a Satisfaction Score $\ge 3.5$ out of 5, indicating that users generally find recommendations relevant. Precision\_20 must be $\ge 0.60$, meaning at least 60\% of the top-20 recommendations are rated as useful.
+
+\subsection{User Interface \& Experience - System Usability Scale (SUS)}
+The usability of the developed web application is evaluated using the System Usability Scale (SUS), a widely adopted and validated questionnaire for assessing perceived usability. The goal of this evaluation is to capture users’ overall impressions of the system in terms of ease of use, learnability, confidence, and perceived complexity after hands-on interaction with the application.
+Usability feedback is collected through a web-based survey consisting of the standard 10-item SUS questionnaire. Each item is rated on a 5-point Likert scale, where 1 corresponds to “Strongly disagree” and 5 corresponds to “Strongly agree”. The questionnaire alternates between positively and negatively worded statements to reduce response bias.
+SUS scores are calculated following the standard scoring procedure: responses to positively worded items are reduced by 1, while responses to negatively worded items are subtracted from 5. The adjusted scores are summed and multiplied by 2.5, yielding a final usability score ranging from 0 to 100.
+The primary evaluation metric is the Overall SUS Score, which serves as a single, interpretable measure of perceived system usability. In addition to the overall score, item-level averages are examined to gain qualitative insight into specific aspects such as learnability, confidence, and perceived system complexity.
+
+\textbf{Procedure:} Participants are recruited from users who have interacted with the web application and are familiar with its core functionality. Before completing the survey, participants are instructed to explore the system freely and perform representative tasks relevant to the application’s intended use case.
+The SUS questionnaire is administered immediately after system interaction to capture fresh impressions. All responses are collected anonymously to encourage honest feedback. A minimum target of 15 completed responses is set to ensure the reliability and interpretability of the usability results.
+
+\begin{table}[H]
+\centering
+\caption{SUS survey questions}
+\label{sus}
+\begin{tabular}{|p{0.5\textwidth}|c|c|c|c|c|}
+\hline
+\textbf{Question} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} \\ \hline
+I think that I would like to use this system frequently & 1 & 2 & 3 & 4 & 5 \\ \hline
+I found the system unnecessarily complex & 1 & 2 & 3 & 4 & 5 \\ \hline
+I thought the system was easy to use & 1 & 2 & 3 & 4 & 5 \\ \hline
+I think that I would need the support of a technical person to be able to use this system & 1 & 2 & 3 & 4 & 5 \\ \hline
+I found the various functions in this system were well integrated & 1 & 2 & 3 & 4 & 5 \\ \hline
+I thought there was too much inconsistency in this system & 1 & 2 & 3 & 4 & 5 \\ \hline
+I would imagine that most people would learn to use this system very quickly & 1 & 2 & 3 & 4 & 5 \\ \hline
+I found the system very cumbersome to use & 1 & 2 & 3 & 4 & 5 \\ \hline
+I felt very confident using the system & 1 & 2 & 3 & 4 & 5 \\ \hline
+I needed to learn a lot of things before I could get going with this system & 1 & 2 & 3 & 4 & 5 \\ \hline
+\end{tabular}
+\end{table}
+
+\textbf{Acceptance Criteria:}
+
+The Overall SUS Score of 68 is considered above-average usability, scores above 80 indicate excellent usability indicating a highly intuitive and user-friendly system. 
+
+\chapter{ANALYSIS \& DESIGN}
+This section describes the intended Travel Trend Recommendation System by showing its analytical and design aspects. To do this it will utilize UML diagrams to show the system’s structure and behavior. Other significant design tactics will also be included that will allow for a strong and effective implementation.
+
+\section{Analysis}
+This section derives system requirements based on a user survey conducted with 85 participants, focusing on social media usage intensity, interaction with travel-related content, and difficulties in recalling or retrieving previously discovered Points of Interest (POIs). The findings provide empirical justification for the need for a real-time, social-media-driven travel trend recommendation system.
+
+\subsection{User Analysis \& Problem Validation}
+To validate the relevance and necessity of the proposed Travel Trend Recommendation System, a user survey \cite{survey} was conducted with a total of 85 participants. The survey focused on social media usage intensity, interaction with travel-related content, and challenges encountered during travel planning. The demographic distribution of participants was notably skewed toward younger users, with approximately 66\% of respondents belonging to the 18–24 age group (Generation Z) and an additional 24\% falling within the 25-34 age group (Millennials). This distribution reflects the population segment most actively engaged with social media platforms and, therefore, most impacted by trends emerging from these environments.
+
+The survey results indicate a high level of daily social media usage among participants. Nearly half of the respondents (approximately 49\%) reported using social media for 3-4 hours per day, while an additional 12\% indicated usage exceeding five hours per day. When combined, over 60\% of participants engage with social media for at least three hours daily. This intensive usage is particularly prominent among younger users, supporting the observation that social media has become a primary medium through which Gen Z and Millennials consume information, including travel-related content. As social media usage continues to increase among these age groups, its influence on decision-making processes such as travel planning becomes progressively more significant.
+
+The survey further demonstrates that social media plays a central role in travel discovery. A substantial majority of participants reported discovering places they wanted to visit through social media platforms, with approximately 55\% indicating that this occurs frequently and nearly 39\% stating that it happens occasionally. These findings suggest that social media has effectively replaced or supplemented traditional sources such as guidebooks and static travel websites for discovering cafes, restaurants, events, and local attractions. However, while discovery is frequent, the mechanisms for retaining and re-accessing this information remain inadequate.
+
+Despite common engagement practices such as saving posts, sending them to friends, or taking screenshots, many users experience difficulty when attempting to retrieve previously discovered locations. This issue is reflected in the survey results, where approximately 72\% of participants reported having forgotten or lost a place they intended to visit because they could not find the relevant post again. This indicates a clear disconnect between the discovery of travel-related information and its long-term usability. The ephemeral and unstructured nature of social media content contributes to this problem, as posts are buried within continuously updating feeds and lack semantic organization.
+
+These findings collectively highlight a growing and systemic issue: while social media functions as a rich and up-to-date source of travel trends, it does not provide users with effective tools for organizing, recalling, or contextualizing discovered Points of Interest. This problem is amplified among younger generations, whose reliance on social media is significantly higher and continues to grow. As a result, the manual effort required to repeatedly search, remember, or reconstruct travel plans from fragmented social media interactions becomes both time-consuming and inefficient.
+
+\subsection{Functional Requirements}
+
+\begin{itemize}
+\item \textbf{Collect travel-related social media content periodically}
+Enables the system to capture current and emerging travel trends by continuously gathering up-to-date content from social media platforms.
+\item \textbf{Process unstructured social media text}
+Allows captions and hashtags to be used as raw input data, ensuring that informal and user-generated content can be analyzed effectively.
+\item \textbf{Extract Points of Interest using semantic analysis}
+Automatically identifies POIs and activities from social media content by applying Large Language Model–based natural language understanding techniques.
+\item \textbf{Associate POIs with contextual metadata}
+Links each extracted POI with relevant information such as posting time, engagement indicators, and approximate location to support accurate trend analysis.
+\item \textbf{Compute dynamic trend scores for POIs}
+Assigns a trend score to each POI by combining engagement intensity and recency, allowing timely and popular locations to be distinguished.
+\item \textbf{Update POI rankings continuously}
+Ensures that newly emerging travel trends are highlighted while declining or outdated trends are gradually deprioritized.
+\item \textbf{Enable exploration and rediscovery of trending POIs}
+Provides users with the ability to browse and rediscover trending POIs by destination, reducing reliance on repeated manual social media searches.
+\item \textbf{Categorize Points of Interest by type}
+Organizes POIs into general categories such as cafes, restaurants, events, and natural attractions to improve clarity and usability.
+\item \textbf{Support filtering of POIs based on user preferences}
+Allows users to filter recommendations by POI type, enabling a more personalized and focused travel planning experience.
+\item \textbf{Export listed Points of Interest}
+Enables users to export POI information so that trend data can be accessed or reused at a later time.
+\end{itemize}
+
+\subsection{Non-Functional Requirements}
+
+\begin{itemize}
+\item \textbf{Provide responsive recommendation results}
+Ensures that POI recommendations are returned within acceptable response times suitable for interactive user sessions.
+\item \textbf{Support system scalability}
+Allows the system to handle increasing volumes of social media data, particularly driven by high usage rates among younger generations.
+\item \textbf{Maintain efficient data processing performance}
+Ensures that large volumes of incoming data are processed efficiently without significant degradation in system performance.
+\item \textbf{Preserve freshness of displayed trends}
+Prioritizes recent social media content while reducing the influence of outdated data to maintain relevance.
+\item \textbf{Ensure reliable POI extraction accuracy}
+Minimizes incorrect or misleading POI extraction to preserve user trust and recommendation quality.
+\item \textbf{Maintain system availability under partial failures}
+Allows continued system operation despite temporary failures in individual components or data sources.
+\item \textbf{Reduce user effort in travel research}
+Decreases the time and cognitive effort required compared to traditional browsing and static travel guides.
+\item \textbf{Support modular system architecture}
+Allows independent development and maintenance of data ingestion, semantic analysis, and ranking components.
+\item \textbf{Enable future system extensibility}
+Supports integration of additional social media platforms or alternative language models without major architectural changes.
+\item \textbf{Protect user privacy}
+Ensures that no personally identifiable information is exposed during data processing or result presentation.
+\end{itemize}
+
+\section{System Design}
+
+The System and Design section presents the overall architecture and workflow of the proposed travel trend recommendation system. It explains how data ingestion, storage, AI-based entity extraction, and user interaction are integrated into a unified platform for identifying travel patterns. The section is supported by architectural and workflow diagrams that illustrate component interactions, data flow, and key design decisions. Particular emphasis is placed on modularity, scalability, and separation of concerns, allowing individual components to evolve independently while maintaining robustness against data source volatility.
+
+\subsection{Use Case Diagram}
+
+The Use Case Diagram illustrates the primary interactions between the two main actors: the end-user, who browses and searches for travel trends, and the administrator, who manages the data extraction pipeline and system maintenance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/usecase.png}
+    \caption{Use Case Diagram of the proposed system}
+\end{figure}
+
+\subsection{Entity-Relationship Diagram}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/erdiagramnew.png}
+    \caption{Entity Relationship Diagram of the proposed database design}
+    \label{erdiagram}
+    \vskip\baselineskip
+\end{figure}
+
+The Entity Relationship Diagram (ERD) defines the logical schema connecting Accounts, Posts, Locations, and Extracted POIs. It highlights the central role of the Post entity, which links user activity to specific geographic locations and extracted POIs.
+
+\subsection{Sequence Diagrams}
+
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{center, width=0.3\textwidth}
+        \includegraphics{figures/sequence_dataphase.png}
+    \end{adjustbox}
+    \caption{Sequence Diagram of the data ingestion phase}
+\end{figure}
+
+The data ingestion pipeline transforms raw CSV files into structured database records through a multi-stage validation and insertion process. When the administrator initiates the pipeline, the DataLoader module scans the designated folder and attempts to parse files using multiple delimiter strategies (comma, tab, semicolon, pipe) to accommodate format inconsistencies commonly found in social media datasets. The system validates the presence of required fields (username, followers, caption, date, likes, comments, latitude, and longitude) before proceeding with insertion, dropping any incomplete records to maintain data quality.
+
+Processing occurs in batches of 500 rows to balance memory efficiency with database transaction overhead. For each batch, the system queries existing accounts by username to avoid duplicate entries, creating new Account records only when necessary. Duplicate posts are identified through a composite check on username, caption, and timestamp. Geographic classification assigns posts to cities by matching coordinates against predefined bounding boxes, a simple approach that assumes posts fall within these rectangular boundaries. The pipeline concludes by reporting statistics on files processed, posts added, and duplicates skipped, though it should be noted that these metrics reflect technical insertions rather than semantic uniqueness of the underlying content.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{adjustbox}{center, width=0.27\textwidth}
+        \includegraphics{figures/sequence_poiextract.png}
+    \end{adjustbox}
+    \caption{Sequence Diagram of the POI extraction phase}
+\end{figure}
+
+The POI extraction pipeline attempts to identify places of interest and associated activities from Instagram captions using a combination of large language model processing and rule-based fallback mechanisms. Posts flagged as unprocessed are retrieved and their captions, along with location metadata, are formatted into prompts for the Qwen LLM API. The prompt instructs the model to extract structured JSON containing place names, categorical types, and activity descriptions, though the quality of these extractions depends heavily on caption clarity and the model's training data coverage of the specific geographic regions.
+
+When API calls succeed, the system receives POI arrays that theoretically capture both locations and contextual activities. However, there are several limitations: the LLM may hallucinate locations not actually mentioned in the text, may inconsistently categorize place types, and currently lacks mechanisms to normalize variant spellings (e.g., "Nymphenburg" vs. "Nymphenburg Palace" are treated as distinct entities). The proposed normalization and fuzzy matching algorithm could address this issue. When API failures occur, due to rate limits, network issues, or service outages, the system falls back to spaCy's Named Entity Recognition, which identifies proper nouns but cannot infer activities or reliably distinguish place names from person names or organizations.
+
+Before database insertion, the system checks for existing POI-post combinations to prevent duplicate entries within the same post, calculating an engagement score by normalizing likes against follower counts. This scoring approach assumes a linear relationship between engagement quality and the likes-to-followers ratio, which may oversimplify the complex dynamics of social media influence. The extraction statistics provide visibility into processing volume and success rates, though they cannot quantify the semantic accuracy of the extracted POIs without manual validation sampling.
+
+The user query flow aggregates extracted POIs and applies a multi-factor scoring algorithm to surface potentially trending locations. When users request recommendations for a specific city, the system constructs a SQL query joining ExtractedPOI, Post, Account, and Location tables, filtering by city name using case-insensitive matching and a configurable recency threshold (default 365 days). The query aggregates mention counts, total likes, total comments, average engagement metrics, and most recent mention dates, metrics that serve as proxies for popularity but do not directly measure actual visitation or satisfaction.
+
+The impact scoring algorithm combines three components: an engagement rate, a logarithmically scaled mention factor, and a time-decay multiplier. The logarithmic scaling of mentions is intended to prevent outliers from dominating rankings. The time-decay multipliers (1.5x for posts ≤30 days, 1.3x for ≤90 days, 1.1x for ≤180 days) represent assumptions about temporal relevance.
+
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{center, width=0.33\textwidth}
+    \includegraphics{figures/sequence_queryphase.png}
+    \end{adjustbox}
+    \caption{Sequence Diagram of the user query phase}
+\end{figure}
+
+The pagination system allows users to explore results in detail, type-based filtering and CSV export improves analysis and customization. Overall, the system is a useful tool for exploring travel trends by revealing patterns in social media discussions about destinations. The rankings reflect online engagement rather than actual destination quality, and they are best used as a data-driven complement to traditional travel research.
+
+\chapter{IMPLEMENTATION}
+
+This section details the concrete realization of the proposed travel trend recommendation system, covering the technology stack, module-by-module implementation, intercomponent communication, and deployment considerations. The implementation integrates a Flask web tier and JSON API, a PostgreSQL database accessed via SQLAlchemy, an offline LLM/NER extraction pipeline with storage-time fuzzy matching, and an application-layer scoring module; components interact through ORM relationships and REST endpoints, and the system is packaged for local development with virtual environments and environment-based configuration to enable seamless migration to managed cloud services.
+
+\section{System Architecture}
+
+The proposed system is implemented as a modular web application, leveraging a lightweight and scalable technology stack. The backend is built on Flask, a Python micro-framework that serves as the controller for both API endpoints and the server-side rendering of HTML templates. This choice allows for rapid development of custom routing logic and seamless integration with Python-based data science libraries.
+
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{center, width=0.47\textwidth}
+    \includegraphics{figures/arch_light.png}
+    \end{adjustbox}
+    \caption{Proposed system architecture}
+\end{figure}
+
+Data persistence is managed by PostgreSQL, a robust relational database management system chosen for its ability to handle complex join operations and concurrent read/write loads efficiently. Database interactions are abstracted using SQLAlchemy, an Object-Relational Mapper (ORM) that enables type-safe database queries and simplifies the management of relationships between user accounts, posts, and locations. The system currently runs on a dedicated local development server, with the architecture designed to be cloud-agnostic for future deployment on platforms like AWS or Google Cloud.
+
+\section{Database Implementation}
+
+The database implementation provides the foundational data management layer for the travel trends analysis system, designed to efficiently handle heterogeneous social media content while supporting complex analytical queries. The schema employs a relational design that balances normalization principles with query performance requirements.
+
+The schema \ref{erdiagram} consists of four interconnected tables forming a hierarchical structure. The Account table stores user profile information, containing username (with a unique constraint) and follower count. The follower count is critical for normalizing engagement metrics, allowing the system to calculate influence-weighted scores. Storing this at the account level rather than duplicating across posts adheres to third normal form while enabling efficient metric computation.
+
+The Post table represents the central entity, functioning as the primary container for temporal and engagement data. Each post maintains a foreign key relationship with Account through account\_id, configured with ON DELETE CASCADE to ensure referential integrity. The table captures three essential dimensions: temporal information via the date timestamp field, quantitative engagement through the likes integer field, and textual content through the caption text field. The poi\_extracted boolean flag implements a processing state tracker, preventing redundant LLM API calls on previously analyzed content, a critical optimization for managing computational costs in production environments.
+
+Geospatial information is maintained in the Location table, which enforces a one-to-one relationship with posts through a foreign key that also serves as the primary key. This design reflects Instagram's constraint of associating posts with at most one location. The table stores both structured coordinates (latitude and longitude) and unstructured textual representations (loc\_name and city). Separating location data facilitates spatial queries and enables efficient indexing for location-based filtering operations.
+
+The ExtractedPOI table is populated by the extraction pipeline and maintains a one-to-many linkage to Post via post\_id. Each record stores the normalized name (poi\_name), the inferred category (poi\_type), and activity descriptors (poi\_activity), consistent with the SQLAlchemy model. Each record links to its source post and stores three extracted attributes: poi\_name (canonical location name), poi\_type (inferred category), and poi\_activity (user-mentioned experiences). The count field implements an aggregation counter. This structure enables many-to-one mappings where multiple posts mentioning variations of the same location can be aggregated through fuzzy matching algorithms during ranking.
+
+All foreign key relationships include ON DELETE CASCADE clauses, ensuring deletion of parent records automatically propagates to dependent records, preventing orphaned data. The schema leverages PostgreSQL's SERIAL type for primary key generation, ensuring globally unique identifiers without application-level coordination. The design anticipates primary access patterns, particularly POI ranking operations requiring joins across all four tables. Optional indexes on lower(poi\_name) and extractedpois.post\_id are maintained for future optimization when scale necessitates them.
+
+\section{LLM-Based Data Extraction Pipeline}
+
+The data extraction pipeline combines a prompt-driven large language model (LLM) with a deterministic named entity recognition (NER) fallback to transform unstructured Instagram captions into structured, queryable points of interest (POIs). The orchestration is implemented in the benchmarking and population routines of the system, where extraction is run over batches of posts and persisted to the relational schema under the ExtractedPOI entity. The pipeline design targets three core challenges: the heterogeneity of user-generated text, the prevalence of informal or multilingual place naming, and the need to avoid redundant processing and duplicate records.
+
+When an LLM key is available, the primary extractor invokes extract\_pois\_with\_qwen on each post’s caption and, when present, its associated Location.loc\_name as contextual grounding. The prompt enforces a normalized output contract, guiding the model to return canonicalized POI names, an inferred category, and activity descriptors. Normalization in the prompt addresses casing, diacritics, and common aliasing patterns (e.g. "Galata" vs. "Galata Kulesi" vs. "Galata Tower"), which materially reduces downstream fragmentation in the analytical layer. In the absence of the LLM key, the pipeline falls back to extract\_with\_spacy, which applies a domain-tuned NER strategy to identify place-like entities and activity phrases. This fallback maintains operational continuity and provides a reproducible baseline, particularly valuable for comparative evaluation of recall, precision, and latency in the benchmarking suite.
+
+The extraction pass is tightly coupled to data integrity and idempotency controls. Each candidate POI is checked against existing records by (post\_id, poi\_name) before insertion, avoiding duplicates that would inflate mention counts and bias rankings. The Post.poi\_extracted flag is used to mark completion and prevent reprocessing, significantly reducing API cost and runtime under repeated experiments. Error handling is implemented at the per-post level, ensuring that individual failures do not abort batch execution and that progress metrics remain reliable. During synthetic dataset population, an initial score may be assigned using an influence-aware heuristic derived from likes normalized by followers, enabling incremental analytics prior to the full ranking computation.
+
+To reduce naming fragmentation at storage time, a fuzzy candidate retrieval is executed per insert. The incoming normalized name is matched against prior entries using indexed trigram similarity and a stricter tie-breaker (e.g., token-set ratio or Jaro–Winkler \cite{cohen2003}) constrained by contextual signals such as city and type. If a candidate exceeds the threshold \cite{fuzzymatching}, a match is found, the new post is aggregated under the existing canonical name, significantly reducing duplicate entries and consolidating trend data. Duplication is prevented by an application-level check on (post\_id, normalized name). Aggregation remains query-time via GROUP BY over normalized names. 
+
+Operationally, the benchmarking script demonstrates the pipeline’s control flow and performance characteristics: batch-limited processing, periodic progress logging, and a guarded selection between LLM and NER based on environment configuration (QWEN\_KEY). When the POI table is empty, the script populates it by running extraction over a bounded set of posts, updating poi\_extracted, and persisting structured POIs with their type and activity. This implementation balances robustness and efficiency, providing a scalable path from free-form text to a normalized POI corpus suitable for downstream scoring, ranking, and city-level aggregation.
+
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{center, width=0.8\textwidth}
+    \includegraphics{figures/poipipeline.png}
+    \end{adjustbox}
+    \caption{LLM-driven POI normalization and trend aggregation across multiple ingestion phases}
+\end{figure}
+
+\section{Dynamic Scoring and Ranking}
+
+Ranking is computed in the application tier after a relational aggregation over normalized POI keys. The query groups records by canonicalized name, inferred type, and activity descriptors, and derives summary statistics including mention count, total likes across contributing posts, average followers of the source accounts, and the most recent publication date. These aggregates form the inputs to a composite score consisting of two components: impact and freshness.
+\begin{figure}[H]
+    \centering
+    \begin{adjustbox}{center, width=0.5\textwidth}
+    \includegraphics{figures/impactscorealgo.png}
+    \end{adjustbox}
+    \caption{Flowchart of how Impact Score is calculated}
+\end{figure}
+Impact reflects audience-adjusted engagement and recurrence. Engagement is normalized by audience size to avoid overweighting large creators, then modulated by a sublinear frequency term to reward POIs that appear repeatedly without allowing raw volume to dominate the ranking. The functional form is intentionally conservative, with parameters left tunable to balance sensitivity to spikes against sustained interest. This construction mitigates outlier effects and stabilizes rankings across heterogeneous posts and account scales.
+
+\begin{equation}
+\text{Engagement} = \frac{\text{Likes} + \text{Comments}}{\text{Followers}}
+\end{equation}
+\begin{equation}
+\text{Frequency} = 1 + \log(1 + M)
+\end{equation}
+where \( M \) denotes the total number of times a given POI is mentioned across the analyzed posts.
+
+Freshness introduces a time-aware weight derived from the age of the most recent mention, ensuring that recent activity is favored while still preserving destinations with consistent, long-term presence. The decay is monotonic with respect to recency and may be expressed as a piecewise multiplier or a smooth exponential form; threshold boundaries and decay rates remain configurable. The final score is obtained by combining impact and freshness, then sorting in descending order to produce the ranked list. This process is resilient to duplicates through upstream normalization and deduplication, and is compatible with later fuzzy consolidation, allowing near-duplicate POI variants to be merged before scoring to yield stable, interpretable trend signals.
+\begin{equation}
+\text{Recency} =
+\begin{cases}
+1.5, & \text{if } \text{Age} < 30 \text{ days} \\
+1.3, & \text{if } 30 \le \text{Age} < 90 \text{ days} \\
+1.0, & \text{if } \text{Age} \ge 180 \text{ days}
+\end{cases}
+\end{equation}
+\begin{equation}
+\text{Impact Score}
+=
+\text{Engagement}
+\times
+\text{Frequency}
+\times
+\text{Recency}
+\end{equation}
+
+\section{Web Interface and API}
+
+
+The user interface is delivered via Flask's template engine, providing a clean, responsive search experience. The primary endpoint, “/query”, accepts parameters for city and date range. It executes a real-time aggregation query that joins the four primary tables, groups results by POI name, and applies the scoring logic on-the-fly. This allows users to filter trends dynamically.
+
+The web layer is implemented with Flask and a lightweight HTML template system, providing a responsive interface for exploration and an HTTP API for programmatic access. Templates and static assets are served from the HTML5UP Solid State theme \cite{htmltemp} directory, with dedicated routes for assets and images to minimize latency.
+
+The API is centered on a single query endpoint that returns ranked points of interest in JSON. The endpoint accepts a required city parameter and optional controls for limit, offset, and temporal window in days. A defensive cap is applied to limit to constrain server-side processing and ensure consistent UI pagination. City matching is case-insensitive and relies on a join with the Location table, enabling filtering by metropolitan area even when posts contain heterogeneous metadata. The query aggregates ExtractedPOI records by normalized POI name, inferred type, and activity descriptors.
+
+Ranking is performed in the application layer using a normalized impact score. Results are sorted by impact and paginated using offset and limit, with metadata indicating total result count and continuation state. Missing or malformed parameters trigger concise JSON errors, for example a 400 response when the city parameter is absent.
+
+The web interface binds these API capabilities to interactive controls: city selection, temporal range adjustment, and filtering by POI type. The POI type filter is forwarded to the API and applied within the grouping clause, yielding category-specific rankings (e.g. museums, parks, restaurants). The results view presents the impact score, mentions, and engagement summaries, with incremental loading driven by offset-based pagination for scalability on large datasets.
+
+Export functionality is exposed as a CSV response for the current filter state. The export uses the same query path, grouping, and sorting semantics as the JSON endpoint, returning a tabular representation of POI name, type, and activity. This facilitates downstream analysis in spreadsheet tools and reproducible reporting, ensuring functional parity between the interactive view and machine-readable outputs.
+
+\section{Proposed System Enhancements}
+
+The following modules outline planned extensions to the core implementation. These features address specific usability and analytical gaps identified during the initial design phase.
+\begin{itemize}
+\item \textbf{Direct Geo-Navigation:} Generate universal geo URIs from stored coordinates to open POIs in mapping applications, bridging discovery and visitation.
+\item \textbf{Sentiment-Weighted Scoring:} Incorporate comment polarity as a coefficient in the ranking to penalize negatively perceived viral places.
+\item \textbf{Personalization:} Introduce user profiles and preference-aware scoring to tailor rankings beyond global engagement signals.
+\item \textbf{Enhanced Text Acquisition:} Integrate OCR-based text extraction techniques to recover captions or embedded textual elements from image content when textual metadata is incomplete or unavailable.
+\item \textbf{Live Data Integration:} Enable continuous, real-time trend detection through authorized access to official social media data sources or commercial data partnerships.
+\item \textbf{Itinerary Optimization:} Extend the recommendation output with an itinerary planning pipeline using LLM reasoning to group trending POIs into coherent travel routes based on geographical proximity.
+\end{itemize}
+
+
+\chapter{TEST AND RESULTS}
+This section presents a comprehensive evaluation of the Travel Trend Recommendation System, assessing both its technical robustness and its practical utility for end-users. First, the performance of the semantic extraction pipeline was analyzed by comparing the proposed Large Language Model (Qwen) against a traditional rule-based baseline (spaCy). This assessment utilized standard classification metrics, specifically Precision, Recall, F1-Score, and Extraction Error Rate (EER), to quantify the system’s accuracy in identifying and categorizing Points of Interest from unstructured social media text. Second, the system’s operational performance was examined through latency measurements and a Data Freshness analysis, which verified the scoring engine’s ability to prioritize recent, trending content over outdated information. Finally, the application’s overall user experience was evaluated using a two-fold approach: a content relevance questionnaire to assess the quality of the travel suggestions, and the System Usability Scale (SUS) to provide a standardized measure of the interface’s usability and learnability.
+
+\section{Model Evaluation Metrics - Error Rate in Data Extraction}
+
+This section presents the comparative evaluation results for POI name extraction and type classification using Qwen (LLM-based) and spaCy (rule/NLP-based) approaches on the 60-post stratified test set.
+
+\ref{poicomparison} presents the aggregate performance metrics for POI name extraction. Qwen achieved balanced precision and recall of 0.617, resulting in an F1-score of 0.617 and an Extraction Error Rate (EER) of 0.383. The bootstrap 95\% confidence interval for Qwen's F1-score ranges from 0.500 to 0.750, indicating moderate but stable performance across resampling iterations.
+
+In contrast, spaCy exhibited significantly lower performance, with precision of 0.400, recall of 0.233, and F1-score of 0.295. The 95\% confidence interval for spaCy's F1-score (0.165–0.421) demonstrates both lower central performance and higher variability. SpaCy's EER of 0.767 indicates that more than three-quarters of extraction attempts resulted in errors, with 46 false negatives (missed POIs) and 21 false positives (incorrect extractions).
+
+\begin{table}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/poicomparison.png}
+    \caption{Comparative POI Name Extraction Performance}
+    \label{poicomparison}
+    \vskip\baselineskip
+\end{table}
+
+\ref{poicomparison} also presents the POI type classification accuracy. Qwen achieved 0.80 accuracy, meeting the acceptance threshold of ≥0.80. This performance demonstrates the LLM's ability to infer POI categories from contextual clues even when explicit type labels are absent, leveraging semantic understanding of terms like "cafe," "museum," "bridge," and associated descriptors. SpaCy was not evaluated for type classification, as rule-based keyword matching lacks the contextual reasoning required to reliably distinguish between semantically similar categories (e.g., "cafe" vs. "restaurant," "monument" vs. "landmark").
+
+The confusion counts reveal distinct failure modes. Qwen produced equal numbers of false positives (23) and false negatives (23), indicating balanced behavior without systematic bias toward over-extraction or under-extraction. SpaCy, however, exhibited a 2:1 ratio of false negatives to false positives (46:21), demonstrating that its primary limitation is coverage—the rule-based patterns fail to detect the majority of POI mentions in natural caption text.
+
+\subsection{Error Analysis}
+
+Qualitative examination of Qwen's extraction errors reveals a consistent pattern: the majority of "failures" are partial name extractions rather than semantically incorrect identifications. Representative examples include:
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/qwenmistakes.png}
+    \caption{Examples of Qwen’s mismatch cases}
+    \label{poicomparison}
+    \vskip\baselineskip
+\end{figure}
+
+In each case, Qwen correctly identified the core POI entity but omitted disambiguating suffixes, subtitles, or location specifiers present in the formal ground truth labels. From a recommendation system perspective, these extractions retain semantic validity—a user searching for "National Gallery" would correctly be directed to the National Gallery of Ireland. This suggests that the Exact Match metric, while academically rigorous, may underestimate the practical utility of Qwen's extractions for downstream recommendation tasks.
+
+SpaCy's errors were more heterogeneous, reflecting limitations in both entity recognition and contextual understanding. The rule-based approach struggled particularly with informal or abbreviated POI names (e.g., casual mentions without @ tags), non-English or code-switched text (German/English mixing common in the corpus), implicit references where the POI is described rather than explicitly named.
+
+These findings validate the architectural decision to use LLM-based extraction in the data pipeline, as spaCy's rule-based approach proves insufficient for the linguistic variability inherent in social media travel content.
+
+\subsection{Assessment}
+
+The acceptance criteria defined in Section 3.4. 1.2 specified: F1-Score ≥ 0.80, Exact Match ≥ 0.75, and EER ≤ 0.15 for POI name extraction; and Accuracy ≥ 0.80 for type classification. Qwen's POI name extraction performance (F1 = 0.617, EM = 0.617, EER = 0.383) falls short of the ideal thresholds, while its type classification accuracy (0.80) meets the criterion exactly. SpaCy fails to meet any threshold, with F1 of 0.295 well below acceptable levels.
+
+However, three factors support the deployment of Qwen despite not fully meeting POI name extraction criteria:
+\begin{itemize}
+\item \textbf{Semantic Validity of Errors:} As demonstrated in the error analysis, the majority of Qwen's "failures" are partial extractions that remain semantically useful for recommendation purposes. A relaxed matching criterion (e.g., substring or fuzzy matching) would significantly improve measured performance.
+\item \textbf{Significant Margin Over Baseline:} Qwen's F1-score is 2.09× higher than spaCy's (0.617 vs. 0.295), with a non-overlapping 95\% confidence interval (Qwen: 0.500–0.750; spaCy: 0.165–0.421), demonstrating statistically significant superiority.
+\item \textbf{Strong Type Classification:} The 0.80 type accuracy provides critical structured metadata for downstream ranking and filtering, a capability entirely absent in rule-based approaches.
+\end{itemize}
+
+Given these considerations, Qwen is selected for deployment in the extraction pipeline, with the recommendation that post-processing normalization and fuzzy matching be employed during database querying to accommodate natural variations in POI naming conventions.
+
+\section{System Performance Tests}
+
+This section reports the performance results of the proposed system with respect to data extraction latency and user-facing query response time. The evaluation focuses on validating the architectural decision to decouple computationally expensive entity extraction from real-time user interactions by performing extraction offline. Measurements are reported using median (p50) and 95th percentile (p95) latency to capture both typical and worst-case performance characteristics.
+
+\textbf{Extraction Latency (ExtractionRT):} Entity extraction latency was evaluated for both the LLM-based POI extraction component and the spaCy-based baseline using identical batches of synthetic social media content. Each batch consisted of N input posts processed sequentially through the extraction pipeline, and measurements were collected across multiple independent runs. As expected, the LLM-based approach incurs additional overhead due to external API calls and network latency, resulting in substantially higher ExtractionRT compared to spaCy. This behavior reflects an inherent trade-off between semantic extraction quality and computational cost rather than an implementation inefficiency. Importantly, extraction is executed entirely offline, ensuring that higher absolute latency does not affect user-facing responsiveness. Variance across runs remained limited, indicating stable and predictable performance under repeated execution. These observations confirm that the extraction cost can be effectively amortized over batch processing within a pre-built pipeline.
+\begin{table}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/qwentime1.png}
+    \caption{ExtractionRT of Qwen tested by 100 posts for 3 iterations}
+    \label{poicomparison}
+\end{table}
+
+Quantitatively, the LLM-based extraction using Qwen-Turbo required between 153.30 s and 161.07 s to process 100 posts across three runs, corresponding to an average per-post latency of approximately 1.53-1.61 seconds. Despite this higher latency, the LLM approach achieved a 100\% extraction success rate and produced consistent POI outputs across runs, demonstrating robust behavior on informal social media text. In contrast, the spaCy-based NER pipeline processed the same dataset in under 1.10 s in all runs, with an average per-post latency of approximately 9–11 milliseconds. While spaCy exhibits orders-of-magnitude lower latency, its extraction success rate remained at 80\%, highlighting limitations in handling context-dependent, non-canonical, and implicitly referenced entities. Overall, these results illustrate the fundamental trade-off between extraction quality and efficiency and empirically justify the architectural decision to separate extraction from real-time query execution.
+
+\begin{table}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/spacytime.png}
+    \caption{ExtractionRT of spaCy tested by 100 posts for 3 iterations}
+    \label{poicomparison}
+\end{table}
+
+\textbf{Query Response Time (QueryRT):} Query response time was evaluated after the database had been populated with pre-extracted POIs. A set of representative user queries was executed, triggering database retrieval and lightweight ranking operations. Due to the pre-extraction of entities and the optimized database schema, QueryRT remained consistently low across all test cases. Both p50 and p95 latencies were well below the defined acceptance threshold of 500 ms. The narrow gap between median and tail latency further indicates predictable and stable query behavior. These results demonstrate that the system can support near real time interaction without performing expensive NLP operations during user queries.
+
+A direct comparison between ExtractionRT and QueryRT shows a clear separation between offline processing costs and online interaction latency. ExtractionRT is orders of magnitude higher than QueryRT, validating the design decision to remove entity extraction from the critical user path. This separation enables the system to scale query throughput independently of extraction complexity. Overall, the system satisfies the defined acceptance criteria and confirms that the proposed pipeline architecture effectively balances extraction accuracy with real-time usability.
+
+\begin{table}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/querytime.png}
+    \caption{Query response time of the top 50 POIs}
+    \label{poicomparison}
+    \vskip\baselineskip
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Component} & \textbf{Posts / Queries} & \textbf{Mean Time} & \textbf{Context} \\
+        \hline
+        LLM Extraction (Qwen) & 100 posts & 157.4 s & Offline processing \\
+        NER Extraction (spaCy) & 100 posts & 0.95 s & Offline baseline \\
+        Query Response & 1 query (50 POI) & 16.3 ms & User-facing \\
+        \hline
+    \end{tabular}
+    \vspace{0.5\baselineskip}
+    \caption{Performance Summary (Mean Values)}
+    \vskip\baselineskip
+\end{table}
+
+\section{Data Freshness Tests}
+
+The system achieved a Mean Age\_20 of 38 days, indicating a moderate preference for recent content. While this exceeds the ideal threshold of 30 days, it remains well within the acceptance criterion of ≤ 60 days and is suitable for travel planning, where content relevance degrades more slowly than in domains like news or social trends. Also it is related to the synthetic test data.
+
+The ranking algorithm successfully balances freshness with other relevance signals (location match, engagement metrics, POI type). Manual evaluation of top-20 results confirmed that older recommendations (>30 days) were retained due to high engagement scores or unique POI coverage, suggesting the system appropriately trades recency for overall recommendation quality.
+
+Given the use of synthetic data, absolute freshness values should be interpreted as indicative rather than definitive. In a production deployment with live Instagram data, the timestamp-based ranking component would ensure that freshness metrics remain within target ranges as new content continuously enters the pipeline.
+
+\section{Relevance of Recommendations Questionnaire}
+
+The relevance of the generated recommendations was evaluated through a follow-up web-based questionnaire completed by 20 participants, all recruited from the earlier Social Media Usage \& Travel Planning survey. This ensured that respondents were already familiar with travel discovery via digital and social platforms. The evaluation focused specifically on the timeliness, discovery value, and perceived alignment of the recommended POIs. Participants responded to the four questions of \cite{relevancesurvey} using a 5-point Likert scale (1 = Strongly disagree, 5 = Strongly agree).
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{lp{0.75\textwidth}}
+        \hline
+        \textbf{Question ID} & \textbf{Question} \\
+        \hline
+        Q1 & To what extent do the suggested POIs reflect current, trending places rather than outdated tourist spots? \\
+        Q2 & How well do the POI suggestions match your specific travel style and interests? \\
+        Q3 & How likely are you to actually visit the suggested POIs during your trip? \\
+        Q4 & Did the recommendations help you discover places you wouldn't have found through conventional search methods? \\
+        \hline
+    \end{tabular}
+    \vspace{0.5\baselineskip}
+    \caption{Relevance of Recommendations survey questions}
+    \label{relevancesurvey}
+    \vskip\baselineskip
+\end{table}
+
+Across all questions, the system achieved a mean score of 3.8/5, indicating a generally positive but moderate level of perceived relevance. This result suggests that while users recognize the value of trend-based recommendations, the system does not yet fully satisfy expectations related to personalization and planning depth.
+
+The strongest performance was observed for the discovery-related question (Q4), with an average score of 4.1/5, indicating that participants largely agreed that the system helps surface non-obvious or lesser-known locations beyond traditional search engines.
+
+Questions related to alignment with personal travel style (Q2) received comparatively lower scores, reflecting the fact that the current prototype does not implement explicit user profiling or preference-based customization.
+
+Several participants noted that the system is effective at highlighting popular or emerging locations, but lacks contextual depth. For example, users mentioned that recommendations would become more convincing if accompanied by guidance on how or when to visit these places, or how they relate to each other geographically.
+
+Importantly, lower scores were not interpreted as a failure of relevance, but rather as an indication that the current system operates at a generic recommendation level. Since no explicit personalization mechanisms (e.g., travel style profiles, budget constraints, or itinerary planning) are implemented at this stage, users evaluated the suggestions as broadly interesting but not fully tailored.
+
+\section{SUS Survey}
+
+A total of 20 participants completed the SUS questionnaire. The system achieved an Overall SUS Score of 88.9, placing it firmly within the excellent usability range.
+
+Item-level analysis indicates that users particularly rated ease of use and confidence while using the system positively, with mean scores of 4.8 and 4.6, respectively. These results suggest that the interface is intuitive and supports users in performing tasks without hesitation. Statements related to usage frequency received comparatively lower, yet still positive, scores (mean = 4.05), reflecting that while the application is easily accessible and usable when needed, it may not be perceived as essential for daily use.
+\vskip\baselineskip
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Metric} & \textbf{Score} \\
+        \hline
+        Recommendation Relevance & 3.8 / 5 \\
+        System Usability Scale (SUS) & 88.9 / 100 \\
+        \hline
+    \end{tabular}
+    \vspace{0.5\baselineskip}
+    \caption{User Satisfaction Summary}
+    \vskip\baselineskip
+\end{table}
+
+Overall, the results suggest that users perceive the application as highly usable, meeting the predefined acceptance criteria. These findings indicate that the system’s interface and interaction design effectively support user tasks, while also highlighting opportunities for further refinement based on specific questionnaire items.
+
+
+
+
+\chapter{CONCLUSION}
+This project successfully developed and validated a real-time travel trend recommendation system that leverages the semantic power of Large Language Models (LLMs) to transform unstructured social media noise into actionable travel intelligence. By shifting the paradigm from static databases to a dynamic, user-generated content pipeline, the system addresses the critical "data paradox" in modern tourism: the abundance of information but a shortage of organization.
+
+The implementation demonstrated that processing social media captions with instruction-tuned LLMs (specifically Qwen-Turbo) significantly outperforms traditional NLP methods in extracting specific Points of Interest (POIs). The system achieved a type classification accuracy of 80\%, proving that context-aware models can effectively categorize vague social locations. Furthermore, the development of a specialized “impact score”, which integrates engagement rates with temporal decay, successfully differentiated fleeting, high-interest trends from static historical landmarks, validating the core hypothesis that "freshness" is a quantifiable metric in travel data.
+
+While the system faced challenges regarding API latency and data extraction variability, the proposed architecture of separating offline heavy-lifting (extraction) from online interaction (querying) proved effective in delivering a responsive user experience. This project provides a comprehensive framework for "Social Travel Analytics," offering a scalable blueprint for how AI can decipher the "tourist gaze" in the era of algorithmic discovery.
+
+
+\section{Future Work}
+Several directions for future research and development have been identified to further improve the system’s accuracy, scalability, and practical usefulness.
+
+\textbf{Enhanced Text Acquisition:} While the current system relies on structured post metadata, future work could integrate OCR-based text extraction techniques to recover captions or embedded textual elements from image content when textual metadata is incomplete or unavailable.
+
+\textbf{User Personalization:} The current recommendation pipeline operates on global engagement signals. Introducing user profiles and interaction history would enable personalized scoring mechanisms. A personalized impact score could prioritize engagement patterns from users with similar interests or travel behavior, improving perceived relevance without compromising system simplicity.
+
+\textbf{Live Data Integration:} At present, data ingestion is performed in a simulated or batch-based manner. Enabling continuous, real-time trend detection would require authorized access to official social media data sources. However, the Instagram Graph API primarily supports business and creator accounts and does not fully cover public content scraping scenarios addressed in this study. Future implementations may therefore require commercial data partnerships or compliant third-party providers to ensure scalability and policy compliance.
+
+\textbf{Direct Geo-Navigation:} The system currently stores geographic coordinates for each location but does not expose them in a user-accessible format. A future enhancement would generate universal geo URIs (e.g., \texttt{geo:latitude,longitude}) from stored coordinates, enabling users to open POIs directly in their preferred mapping applications. This would bridge the gap between trend discovery and physical visitation, improving the practical utility of the system.
+
+\textbf{Sentiment-Weighted Scoring:} To refine the impact score, a sentiment analysis module is proposed using the comments associated with each post. Currently, high engagement (likes) is assumed to be positive. This enhancement would implement a secondary NLTK-based pipeline to extract comments and compute a broad sentiment polarity score. This score would function as a coefficient in the ranking algorithm, ensuring that "viral" places with negative user experiences (e.g., overcrowding complaints) are penalized in the final recommendation list.
+
+\textbf{Itinerary Optimization:} A natural extension of the current recommendation output is the addition of an itinerary planning pipeline, using the LLM to reasoning about the geographical proximity of trending spots to group trending POIs into coherent travel routes, transforming isolated recommendations into actionable travel plans.
+
+
+\printbibliography
+
+\end{document}
